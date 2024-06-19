@@ -1,0 +1,52 @@
+﻿@page "/ViewEmpleados"
+@page "/ViewEmpleados/empleadoId={empleadoId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject EmpleadosService empleadosService
+
+<PageTitle>Detalles del Empleado</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Detalles del Empleado</strong></h3>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@*Datos*@
+			<ul>
+				<li><strong>EmpleadoId:</strong> @empleado.EmpleadoId</li>
+				<li><strong>Nombre:</strong> @empleado.Nombre @empleado.Apellido</li>
+				<li><strong>C&eacute;dula:</strong> @empleado.Cedula</li>
+				<li><strong>Direcci&oacute;n:</strong> @empleado.Direccion</li>
+				<li><strong>Tel&eacute;fono:</strong> @empleado.Telefono</li>
+				<li><strong>Profesi&oacute;n:</strong> @empleado.Profesion</li>
+				<li><strong>Departamento:</strong> @empleado.Departamento</li>
+				<li><strong>Puesto:</strong> @empleado.Puesto</li>
+			</ul>
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<div class="px-2">
+				<button type="button" class="btn btn-outline-danger" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int empleadoId { get; set; }
+	public Empleados empleado { get; set; } = new Empleados();
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		empleado = await empleadosService.Buscar(empleadoId);
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Empleados");
+	}
+}

@@ -1,0 +1,222 @@
+﻿@page "/Empleados"
+@rendermode InteractiveServer
+@inject EmpleadosService empleadosService
+@inject NavigationManager navigation
+
+<PageTitle>Empleados</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Empleados</strong></h3>
+			<button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@if (loading)
+			{
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border text-info">
+					</div>
+				</div>
+			}
+			else if (empleados.Count == 0)
+			{
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay empleados creados</h1>
+			}
+			else
+			{
+				@*Campos a Filtrar*@
+				<div class="mb-3">
+					<div class="row align-items-center">
+						<label class="form-label" for="filtro"><strong>Campo a Filtrar:</strong></label>
+						<div class="col-3">
+							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
+								<option selected disabled>Elije una opci&oacute;n</option>
+								<option value="id">Id</option>
+								<option value="nombre">Nombre</option>
+								<option value="direccion">Direcci&oacute;n</option>
+								<option value="profesion">Profesion</option>
+								<option value="departamento">Departamento</option>
+								<option value="puesto">Puesto</option>
+							</InputSelect>
+						</div>
+						<div class="col-auto miFlecha">
+							<p>→</p>
+						</div>
+						<div class="col-4">
+							<div class="input-group">
+								<InputText class="form-control" @bind-Value="valorFiltro" placeholder="Ingrese un dato para filtrar"></InputText>
+								<button type="button" class="btn btn-outline-primary" @onclick="Buscar"><i class="bi bi-search" /></button>
+							</div>
+						</div>
+						<div class="col-3">
+							<button type="button" class="btn btn-outline-secondary" @onclick="Restablecer"><i class="bi bi-arrow-clockwise" /> Restablecer</button>
+						</div>
+					</div>
+				</div>
+
+				//(nombre, apellidos, cédula, dirección, teléfono, profesión,
+				//registrar el departamento y el puesto que va a desempeñar).
+
+				<table class="table table-bordered miTabla">
+					<thead>
+						<tr>
+							<th>EmpleadoId</th>
+							<th>Nombre</th>
+							<th>C&eacute;dula</th>
+							<th>Direcci&oacute;n</th>
+							<th>Tel&eacute;fono</th>
+							<th>Profesi&oacute;n</th>
+							<th>Departamento</th>
+							<th>Puesto</th>
+							<th>Actividades</th>
+						</tr>
+					</thead>
+					<tbody>
+						@foreach (var empleado in empleados)
+						{
+							<tr>
+								<td>@empleado.EmpleadoId</td>
+								<td>@empleado.Nombre @empleado.Apellido</td>
+								<td>@empleado.Cedula</td>
+								<td>@empleado.Direccion</td>
+								<td>@empleado.Telefono</td>
+								<td>@empleado.Profesion</td>
+								<td>@empleado.Departamento</td>
+								<td>@empleado.Puesto</td>
+								<td>
+									<div class="btn-group" role="group">
+										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(empleado.EmpleadoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
+											<i class="bi bi-eye"></i>
+										</button>
+
+										<button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(empleado.EmpleadoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+											<i class="bi bi-pencil-square"></i>
+										</button>
+										<button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(empleado.EmpleadoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
+											<i class="bi bi-trash3-fill"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						}
+					</tbody>
+				</table>
+			}
+		</div>
+		<div class="card-footer">
+			<p><strong>Total de Empleados:</strong> @empleados.Count</p>
+		</div>
+	</div>
+</div>
+
+@code {
+	public List<Empleados> empleados = new List<Empleados>();
+	public string filtro { get; set; }
+	public string valorFiltro { get; set; }
+	public string mensaje { get; set; }
+	public bool loading { get; set; } = true;
+	public DateTime desde { get; set; } = DateTime.Today;
+	public DateTime hasta { get; set; } = DateTime.Today;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		empleados = await empleadosService.Listar(e => e.EmpleadoId > 0);
+
+		loading = false;
+
+		if (empleados.Count == 0)
+			StateHasChanged();
+	}
+
+	public async Task Buscar()
+	{
+		List<Empleados> resultado = new List<Empleados>();
+
+		// Obtener todos los empleados para realizar el filtrado en el lado del cliente
+		var empleadosList = await empleadosService.Listar(e => true);
+
+		switch (filtro)
+		{
+			case "id":
+				if (int.TryParse(valorFiltro, out int id))
+				{
+					resultado = empleadosList.Where(e => e.EmpleadoId == id).ToList();
+				}
+				break;
+			case "nombre":
+				resultado = empleadosList.Where(e =>
+					e.Nombre.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase) ||
+					e.Apellido.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase) ||
+					(e.Nombre + " " + e.Apellido).Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
+			case "cedula":
+				resultado = empleadosList.Where(e =>
+					e.Cedula.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
+			case "direccion":
+				resultado = empleadosList.Where(e =>
+					e.Direccion.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
+			case "telefono":
+				resultado = empleadosList.Where(e =>
+					e.Telefono.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
+			case "profesion":
+				resultado = empleadosList.Where(e =>
+					e.Profesion.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
+			case "departamento":
+				resultado = empleadosList.Where(e =>
+					e.Departamento.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
+			case "puesto":
+				resultado = empleadosList.Where(e =>
+					e.Puesto.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
+		}
+
+		if (resultado == null || resultado.Count == 0)
+		{
+			// Maneja el caso cuando no se encuentran empleados
+			mensaje = "No se encontraron empleados con el filtro especificado.";
+		}
+		else
+		{
+			empleados = resultado;
+			mensaje = string.Empty; // Limpia el mensaje si se encuentran empleados
+		}
+
+		StateHasChanged();
+	}
+
+
+
+
+	public async Task Restablecer()
+	{
+		empleados = await empleadosService.Listar(e => e.EmpleadoId > 0);
+	}
+
+	public void IrACrear()
+	{
+		navigation.NavigateTo("/CreateEmpleados");
+	}
+
+	public void IrADetalles(int id)
+	{
+		navigation.NavigateTo($"/ViewEmpleados/empleadoId={id}");
+	}
+
+	public void IrAEditar(int id)
+	{
+		navigation.NavigateTo($"/EditEmpleados/empleadoId={id}");
+	}
+
+	public void IrAEliminar(int id)
+	{
+		navigation.NavigateTo($"/DeleteEmpleados/empleadoId={id}");
+	}
+}
