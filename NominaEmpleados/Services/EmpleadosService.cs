@@ -54,6 +54,8 @@ public class EmpleadosService
 	public async Task<Empleados?> Buscar(int id)
 	{
 		return await _contexto.Empleados
+			.Include(e => e.Departamento)
+			.Include(e => e.PuestosTrabajo)
 			.AsNoTracking()
 			.FirstOrDefaultAsync(c => c.EmpleadoId == id);
 	}
@@ -61,6 +63,8 @@ public class EmpleadosService
 	public async Task<List<Empleados>> Listar(Expression<Func<Empleados, bool>> criterio)
 	{
 		return await _contexto.Empleados
+			.Include(e => e.Departamento)
+			.Include(e => e.PuestosTrabajo)
 			.AsNoTracking()
 			.Where(criterio)
 			.ToListAsync();

@@ -3,6 +3,8 @@
 @rendermode InteractiveServer
 @inject NavigationManager navigation
 @inject EmpleadosService empleadosService
+@inject DepartamentosService departamentosService
+@inject PuestosTrabajoService puestosTrabajoService
 
 <PageTitle>Modificar Empleado</PageTitle>
 <EditForm Model="empleado" OnValidSubmit="Modificar">
@@ -65,16 +67,28 @@
 						<ValidationMessage For="@(() => empleado.Profesion)"></ValidationMessage>
 					</div>
 					<div class="col-4">
-						@*Departamento*@
+						@* Departamento *@
 						<label class="form-label" for="departamento"><strong>Departamento:</strong></label>
-						<InputText id="departamento" class="form-control" @bind-Value="empleado.Departamento" placeholder="Ej: Ciber Seguridad"></InputText>
-						<ValidationMessage For="@(() => empleado.Departamento)"></ValidationMessage>
+						<InputSelect id="departamento" class="form-select" @bind-Value="empleado.DepartamentoId">
+							<option value="0" disabled>Elije una opci&oacute;n</option>
+							@foreach (var departamento in departamentos)
+							{
+								<option value="@departamento.DepartamentoId">@departamento.Departamento</option>
+							}
+						</InputSelect>
+						<ValidationMessage For="@(() => empleado.DepartamentoId)"></ValidationMessage>
 					</div>
 					<div class="col-4">
-						@*Puesto*@
-						<label class="form-label" for="puesto"><strong>Puesto:</strong></label>
-						<InputText id="puesto" class="form-control" @bind-Value="empleado.Puesto" placeholder="Ej: Encargado de Ciber Seguridad"></InputText>
-						<ValidationMessage For="@(() => empleado.Puesto)"></ValidationMessage>
+						@* Puesto *@
+						<label class="form-label" for="puesto"><strong>Puesto de Trabajo:</strong></label>
+						<InputSelect id="puesto" class="form-select" @bind-Value="empleado.PuestoId">
+							<option value="0" disabled>Elije una opci&oacute;n</option>
+							@foreach (var puesto in puestosTrabajo)
+							{
+								<option value="@puesto.PuestoTrabajoId">@puesto.Puesto</option>
+							}
+						</InputSelect>
+						<ValidationMessage For="@(() => empleado.PuestoId)"></ValidationMessage>
 					</div>
 				</div>
 			</div>
@@ -93,6 +107,8 @@
 	[Parameter]
 	public int empleadoId { get; set; }
 	public Empleados empleado { get; set; } = new Empleados();
+	public List<Departamentos> departamentos = new List<Departamentos>();
+	public List<PuestosTrabajo> puestosTrabajo = new List<PuestosTrabajo>();
 	public string cedulaUltima { get; set; }
 	public string telefonoUltima { get; set; }
 
@@ -100,6 +116,9 @@
 	{
 		await Task.Delay(500);
 		empleado = await empleadosService.Buscar(empleadoId);
+		departamentos = await departamentosService.Listar(d => true);
+		puestosTrabajo = await puestosTrabajoService.Listar(d => true);
+
 		cedulaUltima = empleado.Cedula;
 		telefonoUltima = empleado.Telefono;
 	}
@@ -114,7 +133,7 @@
 			if (crear)
 			{
 				//mensaje = "El cliente se ha creado con exito";
-				await Task.Delay(2000);
+				await Task.Delay(1000);
 				Volver();
 				//LimpiarPantalla();
 			}

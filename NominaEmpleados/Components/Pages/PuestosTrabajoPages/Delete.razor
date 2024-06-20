@@ -1,0 +1,91 @@
+﻿@page "/DeletePuestosTrabajo"
+@page "/DeletePuestosTrabajo/puestoId={puestoId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject PuestosTrabajoService puestosTrabajoService
+
+<PageTitle>Eliminar Puesto de Trabajo</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Eliminar Puesto de Trabajo</strong></h3>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			<h4><strong>¿Est&aacute;s seguro de que quieres eliminar a este puesto de trabajo?</strong></h4>
+			@*Datos*@
+			<ul>
+				<li><strong>PuestoId:</strong> @puesto.PuestoTrabajoId</li>
+				<li><strong>Puesto de Trabajo:</strong> @puesto.Puesto</li>
+			</ul>
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<div class="px-2">
+				<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+			</div>
+			<button type="button" class="btn btn-outline-dark" @onclick="Eliminar"><i class="bi bi-floppy-fill" /> Eliminar</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int puestoId { get; set; }
+	public PuestosTrabajo puesto { get; set; } = new PuestosTrabajo();
+	public string puestoUltimo { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		puesto = await puestosTrabajoService.Buscar(puestoId);
+
+		puestoUltimo = puesto.Puesto;
+	}
+
+	public async void Eliminar()
+	{
+		var eliminar = await puestosTrabajoService.Eliminar(puestoId);
+		if (eliminar)
+		{
+			//mensaje = "El cliente se ha creado con exito";
+			await Task.Delay(1000);
+			Volver();
+			//LimpiarPantalla();
+		}
+
+
+		// if (await Validar())
+		// 	return;
+		// else
+		// {
+			
+		// 	// else
+		// 	// 	mensaje = "No se pudo crear el cliente correctamente";
+		// }
+
+		StateHasChanged();
+		await Task.Delay(1000);
+		//await LimpiarPantalla();
+	}
+
+	public async Task<bool> Validar()
+	{
+		var valor = await puestosTrabajoService.Listar(e => true);
+		var trabajo = valor.FirstOrDefault(e => e.Puesto == puesto.Puesto);
+
+		if (trabajo != null)
+		{
+			//mensaje = "Error, ya existe un cliente con este nombre";
+			return true;
+		}
+
+		return false;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/PuestosTrabajo");
+	}
+}

@@ -1,0 +1,93 @@
+﻿@page "/CreatePuestosTrabajo"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject PuestosTrabajoService puestosTrabajoService
+
+<PageTitle>Crear Nuevo Puesto de Trabajo</PageTitle>
+<EditForm Model="puesto" OnValidSubmit="Crear">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3><strong>Crear Nuevo Puesto de Trabajo</strong></h3>
+			</div>
+			@*Body*@
+			<div class="card-body">
+				@*Fila #1*@
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Puesto Id*@
+						<label class="form-label" for="puestoId"><strong>PuestoId:</strong></label>
+						<InputNumber id="puestoId" class="form-control" @bind-Value="puesto.PuestoTrabajoId" readonly></InputNumber>
+					</div>
+					<div class="col-4">
+						@*Puesto*@
+						<label class="form-label" for="puesto"><strong>Puesto de Trabajo:</strong></label>
+						<InputText id="puesto" class="form-control" @bind-Value="puesto.Puesto" placeholder="Ej: Encargado de Ciber Seguridad"></InputText>
+						<ValidationMessage For="@(() => puesto.Puesto)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Sueldo*@
+						<label class="form-label" for="sueldo"><strong>Sueldo:</strong></label>
+						<InputNumber id="sueldo" class="form-control" @bind-Value="puesto.Sueldo" placeholder="Ej: 10000"></InputNumber>
+						<ValidationMessage For="@(() => puesto.Sueldo)"></ValidationMessage>
+					</div>
+				</div>
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Crear</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+	public PuestosTrabajo puesto { get; set; } = new PuestosTrabajo();
+
+	public async void Crear()
+	{
+		if (await Validar())
+			return;
+		else
+		{
+			var crear = await puestosTrabajoService.Crear(puesto);
+			if (crear)
+			{
+				//mensaje = "El cliente se ha creado con exito";
+				await Task.Delay(1000);
+				Volver();
+				//LimpiarPantalla();
+			}
+			// else
+			// 	mensaje = "No se pudo crear el cliente correctamente";
+		}
+
+		StateHasChanged();
+		await Task.Delay(1000);
+		//await LimpiarPantalla();
+	}
+
+	public async Task<bool> Validar()
+	{
+		var valor = await puestosTrabajoService.Listar(e => true);
+		var trabajo = valor.FirstOrDefault(e => e.Puesto == puesto.Puesto);
+
+		if (trabajo != null)
+		{
+			//mensaje = "Error, ya existe un cliente con este nombre";
+			return true;
+		}
+
+		return false;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/PuestosTrabajo");
+	}
+}

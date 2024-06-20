@@ -1,0 +1,49 @@
+﻿@page "/ViewPuestosTrabajo"
+@page "/ViewPuestosTrabajo/puestoId={puestoId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject PuestosTrabajoService puestosTrabajoService
+
+<PageTitle>Detalles del Puesto de Trabajo</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Detalles del Puesto de Trabajo</strong></h3>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			@*Datos*@
+			<ul>
+				<li><strong>PuestoId:</strong> @puesto.PuestoTrabajoId</li>
+				<li><strong>Puesto de Trabajo:</strong> @puesto.Puesto</li>
+			</ul>
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<div class="px-2">
+				<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+			</div>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int puestoId { get; set; }
+	public PuestosTrabajo puesto { get; set; } = new PuestosTrabajo();
+	public string puestoUltimo { get; set; }
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		puesto = await puestosTrabajoService.Buscar(puestoId);
+
+		puestoUltimo = puesto.Puesto;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/PuestosTrabajo");
+	}
+}

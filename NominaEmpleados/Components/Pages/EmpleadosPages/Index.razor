@@ -83,8 +83,8 @@
 								<td>@empleado.Direccion</td>
 								<td>@empleado.Telefono</td>
 								<td>@empleado.Profesion</td>
-								<td>@empleado.Departamento</td>
-								<td>@empleado.Puesto</td>
+								<td>@empleado.Departamento.Departamento</td>
+								<td>@empleado.PuestosTrabajo.Puesto</td>
 								<td>
 									<div class="btn-group" role="group">
 										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(empleado.EmpleadoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
@@ -168,14 +168,14 @@
 				resultado = empleadosList.Where(e =>
 					e.Profesion.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
 				break;
-			case "departamento":
-				resultado = empleadosList.Where(e =>
-					e.Departamento.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
-				break;
-			case "puesto":
-				resultado = empleadosList.Where(e =>
-					e.Puesto.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
-				break;
+			// case "departamento":
+			// 	resultado = empleadosList.Where(e =>
+			// 		e.Departamento.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+			// 	break;
+			// case "puesto":
+			// 	resultado = empleadosList.Where(e =>
+			// 		e.PuestoId.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+			// 	break;
 		}
 
 		if (resultado == null || resultado.Count == 0)
