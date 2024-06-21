@@ -14,6 +14,8 @@ public class Contexto : DbContext
     public DbSet<Departamentos> Departamentos { get; set;}
     public DbSet<PuestosTrabajo> PuestosTrabajos { get; set;}
 
+    public DbSet<Nomina> Nomina { get; set;}
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         base.OnModelCreating(modelBuilder);

@@ -1,0 +1,275 @@
+﻿@page "/CreateNominas"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject NominaService nominaService
+@inject EmpleadosService empleadosService
+
+<PageTitle>Crear Nueva Nomina</PageTitle>
+<EditForm Model="nomina" OnValidSubmit="Crear">
+	<DataAnnotationsValidator />
+	<div class="container">
+		<div class="card shadow-lg">
+			@*Header*@
+			<div class="card-header">
+				<h3><strong>Crear Nueva Nomina</strong></h3>
+			</div>
+			@*Body*@
+			<div class="card-body">
+				@*Fila #1*@
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Nomina Id*@
+						<label class="form-label" for="nominaId"><strong>NominaId:</strong></label>
+						<InputNumber id="nominaId" class="form-control" @bind-Value="nomina.NominaId" readonly></InputNumber>
+					</div>
+					<div class="col-4">
+						@*Periodo de Pago*@
+						<label class="form-label" for="periodo"><strong>Per&iacute;odo de Pago:</strong></label>
+						<InputText id="periodo" class="form-control" @bind-Value="nomina.PeriodoPago" readonly></InputText>
+						<ValidationMessage For="@(() => nomina.PeriodoPago)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Horas de Trabajo*@
+						<label class="form-label" for="trabajo"><strong>Horas de Trabajo:</strong></label>
+						<InputText id="trabajo" class="form-control" @bind-Value="horasTrabajo" readonly></InputText>
+					</div>
+				</div>
+				@*Fila #2*@
+				<div class="row mb-3">
+					<div class="col-4">
+						@* Empleado *@
+						<label class="form-label" for="empleado"><strong>Empleado:</strong></label>
+						<InputSelect id="empleado" class="form-select" @bind-Value="nomina.EmpleadoId" @oninput="ObtenerSueldoEmpleado">
+							<option value="0" disabled>Elije una opción</option>
+							@foreach (var empleado in empleados)
+							{
+								<option value="@empleado.EmpleadoId">@empleado.Nombre @empleado.Apellido</option>
+							}
+						</InputSelect>
+						<ValidationMessage For="@(() => nomina.EmpleadoId)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@* Salario Bruto *@
+						<label class="form-label" for="bruto"><strong>Salario Bruto:</strong></label>
+						<InputNumber id="bruto" class="form-control" @bind-Value="nomina.SalarioBruto" readonly></InputNumber>
+						<ValidationMessage For="@(() => nomina.SalarioBruto)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@* Salario Neto *@
+						<label class="form-label" for="neto"><strong>Salario Neto:</strong></label>
+						<InputNumber id="neto" class="form-control" @bind-Value="nomina.SalarioNeto" readonly></InputNumber>
+						<ValidationMessage For="@(() => nomina.SalarioNeto)"></ValidationMessage>
+					</div>
+				</div>
+
+				@*Fila #3*@
+				<div class="row mb-3">
+					<div class="col-4">
+						@*AFP*@
+						<label class="form-label" for="afp"><strong>AFP:</strong></label>
+						<InputNumber id="afp" class="form-control" @bind-Value="nomina.AFP" readonly></InputNumber>
+						<ValidationMessage For="@(() => nomina.AFP)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Seguro Medico*@
+						<label class="form-label" for="sfs"><strong>SFS:</strong></label>
+						<InputNumber id="sfs" class="form-control" @bind-Value="nomina.SeguroMedico" readonly></InputNumber>
+						<ValidationMessage For="@(() => nomina.SeguroMedico)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*ISR*@
+						<label class="form-label" for="isr"><strong>ISR:</strong></label>
+						<InputNumber id="isr" class="form-control" @bind-Value="nomina.ISR" readonly></InputNumber>
+						<ValidationMessage For="@(() => nomina.ISR)"></ValidationMessage>
+					</div>
+				</div>
+				@*Fila #4*@
+				<div class="row mb-3">
+					<div class="col-4">
+						@*Cantidad Extras*@
+						<label class="form-label" for="horas"><strong>Cantidad Horas Extras:</strong></label>
+						<InputNumber id="horas" class="form-control" @bind-Value="nomina.CantidadHorasExtras" @onblur="CalcularNomina"></InputNumber>
+					</div>
+					<div class="col-4">
+						@*Pago Horas Extras*@
+						<label class="form-label" for="extras"><strong>Pago Horas Extras:</strong></label>
+						<InputNumber id="extras" class="form-control" @bind-Value="nomina.HorasExtras" readonly></InputNumber>
+						<ValidationMessage For="@(() => nomina.HorasExtras)"></ValidationMessage>
+					</div>
+					<div class="col-4">
+						@*Descuento de Prestamos*@
+						<label class="form-label" for="prestamos"><strong>Descuento de Prestamos:</strong></label>
+						<InputNumber id="prestamos" class="form-control" @bind-Value="nomina.DescuentoPrestamo" @onblur="CalcularNomina" placeholder="Ej: 829-284-3031"></InputNumber>
+						<ValidationMessage For="@(() => nomina.DescuentoPrestamo)"></ValidationMessage>
+					</div>
+				</div>
+				@*Fila #5*@
+				<div class="row mb-3">
+					
+				</div>
+			</div>
+			@*Footer*@
+			<div class="card-footer d-flex justify-content-center">
+				<div class="px-2">
+					<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				</div>
+				<button type="submit" class="btn btn-outline-success"><i class="bi bi-floppy-fill" /> Crear</button>
+			</div>
+		</div>
+	</div>
+</EditForm>
+
+@code {
+	public Nomina nomina { get; set; } = new Nomina();
+	public List<Empleados> empleados = new List<Empleados>();
+	public string horasTrabajo { get; set; } = "8 Horas Diarias (Lunes - Viernes)";
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		empleados = await empleadosService.Listar(d => true);
+	}
+
+	// private async Task CalcularEmpleado(ChangeEventArgs e)
+	// {
+	// 	// Convertir e.Value a int para obtener el EmpleadoId seleccionado
+	// 	int empleadoId = int.Parse(e.Value.ToString());
+
+	// 	// Encontrar el empleado en la lista de empleados
+	// 	var selectedEmpleado = empleados.FirstOrDefault(emp => emp.EmpleadoId == empleadoId);
+
+	// 	// Asegurarse de que el empleado no es null
+	// 	if (selectedEmpleado != null)
+	// 	{
+	// 		var sueldo = selectedEmpleado.PuestosTrabajo.Sueldo;
+
+	// 		nomina.HorasExtras = (((sueldo / 23.83m) / 8) * 1.3m) * cantidadHoras;
+
+	// 		// Asignar el salario del empleado a nomina.SalarioBruto
+	// 		nomina.SalarioBruto = sueldo + nomina.HorasExtras;
+
+	// 		// Calcular y redondear los valores para AFP, Seguro Médico y Salario Neto
+	// 		nomina.AFP = Math.Round(nomina.SalarioBruto * 0.0287m, 2);
+	// 		nomina.SeguroMedico = Math.Round(nomina.SalarioBruto * 0.0304m, 2);
+	// 		nomina.SalarioNeto = Math.Round(nomina.SalarioBruto - (nomina.AFP + nomina.SeguroMedico), 2);
+
+	// 		// Trigger state change to update UI
+	// 		StateHasChanged();
+	// 	}
+	// 	else
+	// 	{
+	// 		// Manejar el caso donde el empleado no se encuentra
+	// 		Console.WriteLine("Empleado no encontrado");
+	// 	}
+	// }
+
+	//////////////////////////////////// <summary>
+	/// /////////////////////////////////
+	/// </summary>
+
+	/// 
+	private void CalcularNomina()
+	{
+		// Encontrar el empleado en la lista de empleados
+		var selectedEmpleado = empleados.FirstOrDefault(emp => emp.EmpleadoId == nomina.EmpleadoId);
+
+		// Asegurarse de que el empleado no es null
+		if (selectedEmpleado != null)
+		{
+			var sueldo = selectedEmpleado.PuestosTrabajo.Sueldo;
+
+			// Calcular las horas extras basadas en el sueldo
+			nomina.HorasExtras = Math.Round((((sueldo / 23.83m) / 8) * 1.35m) * nomina.CantidadHorasExtras,2);
+
+			// Asignar el salario del empleado a nomina.SalarioBruto
+			nomina.SalarioBruto = sueldo + nomina.HorasExtras;
+
+			// Calcular y redondear los valores para AFP, Seguro Médico y Salario Neto
+			if ((nomina.SalarioBruto * 12) <= 416220)
+				nomina.ISR = 0;
+
+			if ((nomina.SalarioBruto * 12) > 416220 && (nomina.SalarioBruto * 12) <= 624329)
+				nomina.ISR = Math.Round((((nomina.SalarioBruto * 12) - 416220.01m) * 0.15m) / 12, 2);
+
+			else if ((nomina.SalarioBruto * 12) > 624329 && (nomina.SalarioBruto * 12) <= 867123)
+				nomina.ISR = Math.Round(((((nomina.SalarioBruto * 12) - 624329.01m) * 0.20m) + 31216) / 12, 2);
+
+			else if ((nomina.SalarioBruto * 12) > 867123)
+				nomina.ISR = Math.Round(((((nomina.SalarioBruto * 12) - 867123.01m) * 0.25m) + 79776) / 12, 2);
+
+			nomina.AFP = Math.Round(nomina.SalarioBruto * 0.0287m, 2);
+			nomina.SeguroMedico = Math.Round(nomina.SalarioBruto * 0.0304m, 2);
+			nomina.SalarioNeto = Math.Round(nomina.SalarioBruto - 
+				(nomina.AFP + nomina.SeguroMedico + nomina.DescuentoPrestamo + nomina.ISR), 2);
+
+			// Trigger state change to update UI
+			StateHasChanged();
+		}
+		else
+		{
+			// Manejar el caso donde el empleado no se encuentra
+			Console.WriteLine("Empleado no encontrado");
+		}
+	}
+
+	private void ObtenerSueldoEmpleado(ChangeEventArgs e)
+	{
+		// Convertir e.Value a int para obtener el EmpleadoId seleccionado
+		nomina.EmpleadoId = int.Parse(e.Value.ToString());
+
+		// Llamar a la función común de cálculo
+		CalcularNomina();
+	}
+
+
+
+	public async void Crear()
+	{
+		if (await Validar())
+			return;
+		else
+		{
+			var crear = await nominaService.Crear(nomina);
+			if (crear)
+			{
+				//mensaje = "El cliente se ha creado con exito";
+				await Task.Delay(1000);
+				Volver();
+				//LimpiarPantalla();
+			}
+			// else
+			// 	mensaje = "No se pudo crear el cliente correctamente";
+		}
+
+		StateHasChanged();
+		await Task.Delay(2000);
+		//await LimpiarPantalla();
+	}
+
+	public async Task<bool> Validar()
+	{
+		// var valor = await empleadosService.Listar(e => e.EmpleadoId > 0);
+		// var cedula = valor.FirstOrDefault(e => e.Cedula == empleado.Cedula);
+		// var telefono = valor.FirstOrDefault(e => e.Telefono == empleado.Telefono);
+
+		// if (cedula != null)
+		// {
+		// 	//mensaje = "Error, ya existe un cliente con este nombre";
+		// 	return true;
+		// }
+		// if (telefono != null)
+		// {
+		// 	//mensaje = "Error, ya existe un cliente con este RNC";
+		// 	return true;
+		// }
+
+		// return false;
+
+		return false;
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Nominas");
+	}
+}

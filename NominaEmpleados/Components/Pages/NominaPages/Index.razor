@@ -1,14 +1,14 @@
-﻿@page "/PuestosTrabajo"
+﻿@page "/Nominas"
 @rendermode InteractiveServer
-@inject PuestosTrabajoService puestosTrabajoService
+@inject NominaService nominaService
 @inject NavigationManager navigation
 
-<PageTitle>Puestos de Trabajo</PageTitle>
+<PageTitle>Nominas</PageTitle>
 <div class="container">
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Puestos de Trabajo</strong></h3>
+			<h3><strong>Nominas</strong></h3>
 			<button type="button" class="btn btn-outline-primary" @onclick="IrACrear"><i class="bi bi-plus-circle" /> Crear</button>
 		</div>
 		@*Body*@
@@ -20,9 +20,9 @@
 					</div>
 				</div>
 			}
-			else if (puestosTrabajo.Count == 0)
+			else if (nominas.Count == 0)
 			{
-				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay empleados creados</h1>
+				<h1 class="miMensaje"><i class="bi bi-exclamation-triangle" /> No hay Nominas creadas</h1>
 			}
 			else
 			{
@@ -34,6 +34,7 @@
 							<InputSelect id="filtro" class="form-select" @bind-Value="filtro">
 								<option selected disabled>Elije una opci&oacute;n</option>
 								<option value="id">Id</option>
+								<option value="empleado">Empleado</option>
 								<option value="puesto">Puesto</option>
 							</InputSelect>
 						</div>
@@ -58,29 +59,31 @@
 				<table class="table table-bordered miTabla">
 					<thead>
 						<tr>
-							<th>PuestosId</th>
+							<th>NominaId</th>
+							<th>Empleado</th>
 							<th>Puesto de Trabajo</th>
-							<th>Sueldo</th>
+							<th>Per&iacute;odo</th>
 							<th>Actividades</th>
 						</tr>
 					</thead>
 					<tbody>
-						@foreach (var puestos in puestosTrabajo)
+						@foreach (var nomina in nominas)
 						{
 							<tr>
-								<td>@puestos.PuestoTrabajoId</td>
-								<td>@puestos.Puesto</td>
-								<td>@puestos.Sueldo.ToString("N2")</td>
+								<td>@nomina.NominaId</td>
+								<td>@nomina.Empleado.Nombre @nomina.Empleado.Apellido</td>
+								<td>@nomina.Empleado.PuestosTrabajo.Puesto</td>
+								<td>@nomina.PeriodoPago</td>
 								<td>
 									<div class="btn-group" role="group">
-										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(puestos.PuestoTrabajoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
+										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(nomina.NominaId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
 											<i class="bi bi-eye"></i>
 										</button>
 
-										<button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(puestos.PuestoTrabajoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
+										<button type="button" class="btn btn-outline-warning" @onclick="()=> IrAEditar(nomina.NominaId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Editar">
 											<i class="bi bi-pencil-square"></i>
 										</button>
-										<button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(puestos.PuestoTrabajoId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
+										<button type="button" class="btn btn-outline-danger" @onclick="()=> IrAEliminar(nomina.NominaId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Eliminar">
 											<i class="bi bi-trash3-fill"></i>
 										</button>
 									</div>
@@ -92,49 +95,55 @@
 			}
 		</div>
 		<div class="card-footer">
-			<p><strong>Total de Puestos de Trabajo:</strong> @puestosTrabajo.Count</p>
+			<p><strong>Total de Nominas:</strong> @nominas.Count</p>
 		</div>
 	</div>
 </div>
 
 @code {
-	public List<PuestosTrabajo> puestosTrabajo = new List<PuestosTrabajo>();
+	public List<Nomina> nominas = new List<Nomina>();
 	public string filtro { get; set; }
 	public string valorFiltro { get; set; }
 	public string mensaje { get; set; }
 	public bool loading { get; set; } = true;
-	public DateTime desde { get; set; } = DateTime.Today;
-	public DateTime hasta { get; set; } = DateTime.Today;
 
 	protected override async Task OnInitializedAsync()
 	{
 		await Task.Delay(500);
-		puestosTrabajo = await puestosTrabajoService.Listar(e => true);
+		nominas = await nominaService.Listar(e => true);
 
 		loading = false;
 
-		if (puestosTrabajo.Count == 0)
+		if (nominas.Count == 0)
 			StateHasChanged();
 	}
 
 	public async Task Buscar()
 	{
-		List<PuestosTrabajo> resultado = new List<PuestosTrabajo>();
+		List<Nomina> resultado = new List<Nomina>();
 
 		// Obtener todos los empleados para realizar el filtrado en el lado del cliente
-		var puestosList = await puestosTrabajoService.Listar(e => true);
+		var nominasList = await nominaService.Listar(e => true);
 
 		switch (filtro)
 		{
 			case "id":
 				if (int.TryParse(valorFiltro, out int id))
 				{
-					resultado = puestosList.Where(e => e.PuestoTrabajoId == id).ToList();
+					resultado = nominasList.Where(e => e.NominaId == id).ToList();
 				}
 				break;
+			case "empleado":
+				resultado = nominasList.Where(e => e.Empleado.Nombre.
+					Contains(valorFiltro, StringComparison.OrdinalIgnoreCase) ||
+					e.Empleado.Apellido.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase) ||
+					(e.Empleado.Nombre + " " + e.Empleado.Apellido).
+					Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
 			case "puesto":
-				resultado = puestosList.Where(e =>
-					e.Puesto.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				resultado = nominasList.Where(e =>
+					e.Empleado.PuestosTrabajo.Puesto.
+					Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
 				break;
 		}
 
@@ -145,38 +154,35 @@
 		}
 		else
 		{
-			puestosTrabajo = resultado;
+			nominas = resultado;
 			mensaje = string.Empty; // Limpia el mensaje si se encuentran empleados
 		}
 
 		StateHasChanged();
 	}
 
-
-
-
 	public async Task Restablecer()
 	{
-		puestosTrabajo = await puestosTrabajoService.Listar(e => true);
+		nominas = await nominaService.Listar(e => true);
 	}
 
 	public void IrACrear()
 	{
-		navigation.NavigateTo("/CreatePuestosTrabajo");
+		navigation.NavigateTo("/CreateNominas");
 	}
 
 	public void IrADetalles(int id)
 	{
-		navigation.NavigateTo($"/ViewPuestosTrabajo/puestoId={id}");
+		navigation.NavigateTo($"/ViewNominas/nominaId={id}");
 	}
 
 	public void IrAEditar(int id)
 	{
-		navigation.NavigateTo($"/EditPuestosTrabajo/puestoId={id}");
+		navigation.NavigateTo($"/EditNominas/nominaId={id}");
 	}
 
 	public void IrAEliminar(int id)
 	{
-		navigation.NavigateTo($"/DeletePuestosTrabajo/puestoId={id}");
+		navigation.NavigateTo($"/DeleteNominas/nominaId={id}");
 	}
 }

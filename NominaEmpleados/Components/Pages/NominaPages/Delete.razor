@@ -1,0 +1,208 @@
+﻿@page "/DeleteNominas"
+@page "/DeleteNominas/nominaId={nominaId:int}"
+@rendermode InteractiveServer
+@inject NavigationManager navigation
+@inject NominaService nominaService
+
+<PageTitle>Eliminar Nomina</PageTitle>
+<div class="container">
+	<div class="card shadow-lg">
+		@*Header*@
+		<div class="card-header">
+			<h3><strong>Eliminar Nomina</strong></h3>
+		</div>
+		@*Body*@
+		<div class="card-body">
+			<h4><strong>¿Est&aacute;s seguro de que quieres eliminar esta nomina?</strong></h4>
+			@if (loading)
+			{
+				<div class="d-flex justify-content-center">
+					<div class="spinner-border text-info">
+					</div>
+				</div>
+			}
+			else
+			{
+				@*Datos en tabla vertical*@
+				<table class="table">
+					<tbody>
+						<tr>
+							<th>NominaId</th>
+							<td>@nomina.NominaId</td>
+						</tr>
+						<tr>
+							<th>Período de Pago</th>
+							<td>@nomina.PeriodoPago</td>
+						</tr>
+						<tr>
+							<th>Horas de Trabajo</th>
+							<td>@horasTrabajo</td>
+						</tr>
+						<tr>
+							<th>Empleado</th>
+							<td>@nomina.Empleado.Nombre @nomina.Empleado.Apellido</td>
+						</tr>
+						<tr>
+							<th>Salario Bruto</th>
+							<td>@nomina.SalarioBruto.ToString("N2")</td>
+						</tr>
+						<tr>
+							<th>Cantidad de Horas Extras</th>
+							<td>@nomina.CantidadHorasExtras</td>
+						</tr>
+						<tr>
+							<th>Pago Horas Extras</th>
+							<td>@nomina.HorasExtras.ToString("N2")</td>
+						</tr>
+
+						@* Apartado de deducciones *@
+						<tr class="deducciones-header">
+							<th colspan="2">Deducciones</th>
+						</tr>
+						<tr>
+							<th>AFP</th>
+							<td>@nomina.AFP.ToString("N2")</td>
+						</tr>
+						<tr>
+							<th>SFS</th>
+							<td>@nomina.SeguroMedico.ToString("N2")</td>
+						</tr>
+						<tr>
+							<th>ISR</th>
+							<td>@nomina.ISR.ToString("N2")</td>
+						</tr>
+						<tr>
+							<th>Descuento de Prestamos</th>
+							<td>@nomina.DescuentoPrestamo.ToString("N2")</td>
+						</tr>
+						<tr class="deducciones-header">
+							<th colspan="2">Total Deducciones</th>
+						</tr>
+						<tr>
+							<th>Total Deducciones</th>
+							<td>@totalDeducciones.ToString("N2")</td>
+						</tr>
+						<tr class="deducciones-header">
+							<th colspan="2">Sueldo Neto</th>
+						</tr>
+						<tr>
+							<th>Salario Neto</th>
+							<td>@nomina.SalarioNeto.ToString("N2")</td>
+						</tr>
+					</tbody>
+				</table>
+
+				<style>
+					.deducciones-header {
+						background-color: #f8f9fa; /* Light gray background */
+						font-weight: bold; /* Bold text */
+						text-align: center; /* Centered text */
+					}
+				</style>
+			}
+		</div>
+		@*Footer*@
+		<div class="card-footer d-flex justify-content-center">
+			<div class="px-2">
+				<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+			</div>
+			<button type="submit" class="btn btn-outline-dark"><i class="bi bi-floppy-fill" /> Elimnar</button>
+		</div>
+	</div>
+</div>
+
+@code {
+	[Parameter]
+	public int nominaId { get; set; }
+	public Nomina nomina { get; set; } = new Nomina();
+	public bool loading { get; set; } = true;
+	public decimal totalDeducciones { get; set; }
+	public string horasTrabajo { get; set; } = "8 Horas Diarias (Lunes - Viernes)";
+
+	protected override async Task OnInitializedAsync()
+	{
+		await Task.Delay(500);
+		nomina = await nominaService.Buscar(nominaId);
+
+		loading = false;
+
+		if (nomina != null)
+		{
+			totalDeducciones =
+				nomina.AFP + nomina.SeguroMedico + nomina.ISR + nomina.DescuentoPrestamo;
+
+			StateHasChanged();
+		}
+	}
+
+	// private async Task CalcularEmpleado(ChangeEventArgs e)
+	// {
+	// 	// Convertir e.Value a int para obtener el EmpleadoId seleccionado
+	// 	int empleadoId = int.Parse(e.Value.ToString());
+
+	// 	// Encontrar el empleado en la lista de empleados
+	// 	var selectedEmpleado = empleados.FirstOrDefault(emp => emp.EmpleadoId == empleadoId);
+
+	// 	// Asegurarse de que el empleado no es null
+	// 	if (selectedEmpleado != null)
+	// 	{
+	// 		var sueldo = selectedEmpleado.PuestosTrabajo.Sueldo;
+
+	// 		nomina.HorasExtras = (((sueldo / 23.83m) / 8) * 1.3m) * cantidadHoras;
+
+	// 		// Asignar el salario del empleado a nomina.SalarioBruto
+	// 		nomina.SalarioBruto = sueldo + nomina.HorasExtras;
+
+	// 		// Calcular y redondear los valores para AFP, Seguro Médico y Salario Neto
+	// 		nomina.AFP = Math.Round(nomina.SalarioBruto * 0.0287m, 2);
+	// 		nomina.SeguroMedico = Math.Round(nomina.SalarioBruto * 0.0304m, 2);
+	// 		nomina.SalarioNeto = Math.Round(nomina.SalarioBruto - (nomina.AFP + nomina.SeguroMedico), 2);
+
+	// 		// Trigger state change to update UI
+	// 		StateHasChanged();
+	// 	}
+	// 	else
+	// 	{
+	// 		// Manejar el caso donde el empleado no se encuentra
+	// 		Console.WriteLine("Empleado no encontrado");
+	// 	}
+	// }
+
+	//////////////////////////////////// <summary>
+	/// /////////////////////////////////
+	/// </summary>
+
+	///
+	
+
+
+
+	public async void Eliminar()
+	{
+		var crear = await nominaService.Eliminar(nominaId);
+		if (crear)
+		{
+			//mensaje = "El cliente se ha creado con exito";
+			await Task.Delay(1000);
+			Volver();
+			//LimpiarPantalla();
+		}
+		// if (await Validar())
+		// 	return;
+		// else
+		// {
+			
+		// 	// else
+		// 	// 	mensaje = "No se pudo crear el cliente correctamente";
+		// }
+
+		StateHasChanged();
+		await Task.Delay(2000);
+		//await LimpiarPantalla();
+	}
+
+	void Volver()
+	{
+		navigation.NavigateTo("/Nominas");
+	}
+}
