@@ -52,9 +52,6 @@
 					</div>
 				</div>
 
-				//(nombre, apellidos, cédula, dirección, teléfono, profesión,
-				//registrar el departamento y el puesto que va a desempeñar).
-
 				<table class="table table-bordered miTabla">
 					<thead>
 						<tr>
@@ -121,7 +118,6 @@
 	{
 		List<PuestosTrabajo> resultado = new List<PuestosTrabajo>();
 
-		// Obtener todos los empleados para realizar el filtrado en el lado del cliente
 		var puestosList = await puestosTrabajoService.Listar(e => true);
 
 		switch (filtro)
@@ -139,21 +135,16 @@
 		}
 
 		if (resultado == null || resultado.Count == 0)
-		{
-			// Maneja el caso cuando no se encuentran empleados
 			mensaje = "No se encontraron empleados con el filtro especificado.";
-		}
+
 		else
 		{
 			puestosTrabajo = resultado;
-			mensaje = string.Empty; // Limpia el mensaje si se encuentran empleados
+			mensaje = string.Empty;
 		}
 
 		StateHasChanged();
 	}
-
-
-
 
 	public async Task Restablecer()
 	{

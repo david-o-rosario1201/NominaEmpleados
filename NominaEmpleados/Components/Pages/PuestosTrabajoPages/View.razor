@@ -9,7 +9,7 @@
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Detalles del Puesto de Trabajo</strong></h3>
+			<h3 class="text-center"><strong>Detalles del Puesto de Trabajo</strong></h3>
 		</div>
 		@*Body*@
 		<div class="card-body">
@@ -17,6 +17,7 @@
 			<ul>
 				<li><strong>PuestoId:</strong> @puesto.PuestoTrabajoId</li>
 				<li><strong>Puesto de Trabajo:</strong> @puesto.Puesto</li>
+				<li><strong>Sueldo:</strong> @puesto.Sueldo.ToString("N2")</li>
 			</ul>
 		</div>
 		@*Footer*@

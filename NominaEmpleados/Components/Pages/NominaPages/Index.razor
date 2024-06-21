@@ -35,6 +35,7 @@
 								<option selected disabled>Elije una opci&oacute;n</option>
 								<option value="id">Id</option>
 								<option value="empleado">Empleado</option>
+								<option value="cedula">C&eacute;dula</option>
 								<option value="puesto">Puesto</option>
 							</InputSelect>
 						</div>
@@ -53,9 +54,6 @@
 					</div>
 				</div>
 
-				//(nombre, apellidos, cédula, dirección, teléfono, profesión,
-				//registrar el departamento y el puesto que va a desempeñar).
-
 				<table class="table table-bordered miTabla">
 					<thead>
 						<tr>
@@ -63,6 +61,7 @@
 							<th>Empleado</th>
 							<th>Puesto de Trabajo</th>
 							<th>Per&iacute;odo</th>
+							<th>C&eacute;dula</th>
 							<th>Actividades</th>
 						</tr>
 					</thead>
@@ -74,6 +73,7 @@
 								<td>@nomina.Empleado.Nombre @nomina.Empleado.Apellido</td>
 								<td>@nomina.Empleado.PuestosTrabajo.Puesto</td>
 								<td>@nomina.PeriodoPago</td>
+								<td>@nomina.Empleado.Cedula</td>
 								<td>
 									<div class="btn-group" role="group">
 										<button type="button" class="btn btn-outline-info" @onclick="()=> IrADetalles(nomina.NominaId)" data-bs-toggle="tooltip" data-bs-placement="top" title="Ver detalles">
@@ -122,7 +122,6 @@
 	{
 		List<Nomina> resultado = new List<Nomina>();
 
-		// Obtener todos los empleados para realizar el filtrado en el lado del cliente
 		var nominasList = await nominaService.Listar(e => true);
 
 		switch (filtro)
@@ -140,6 +139,10 @@
 					(e.Empleado.Nombre + " " + e.Empleado.Apellido).
 					Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
 				break;
+			case "cedula":
+				resultado = nominasList.Where(e =>
+					e.Empleado.Cedula.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
 			case "puesto":
 				resultado = nominasList.Where(e =>
 					e.Empleado.PuestosTrabajo.Puesto.
@@ -148,14 +151,12 @@
 		}
 
 		if (resultado == null || resultado.Count == 0)
-		{
-			// Maneja el caso cuando no se encuentran empleados
 			mensaje = "No se encontraron empleados con el filtro especificado.";
-		}
+
 		else
 		{
 			nominas = resultado;
-			mensaje = string.Empty; // Limpia el mensaje si se encuentran empleados
+			mensaje = string.Empty;
 		}
 
 		StateHasChanged();

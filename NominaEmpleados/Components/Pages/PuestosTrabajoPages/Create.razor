@@ -10,7 +10,7 @@
 		<div class="card shadow-lg">
 			@*Header*@
 			<div class="card-header">
-				<h3><strong>Crear Nuevo Puesto de Trabajo</strong></h3>
+				<h3 class="text-center"><strong>Crear Nuevo Puesto de Trabajo</strong></h3>
 			</div>
 			@*Body*@
 			<div class="card-body">
@@ -58,18 +58,13 @@
 			var crear = await puestosTrabajoService.Crear(puesto);
 			if (crear)
 			{
-				//mensaje = "El cliente se ha creado con exito";
 				await Task.Delay(1000);
 				Volver();
-				//LimpiarPantalla();
 			}
-			// else
-			// 	mensaje = "No se pudo crear el cliente correctamente";
 		}
 
 		StateHasChanged();
 		await Task.Delay(1000);
-		//await LimpiarPantalla();
 	}
 
 	public async Task<bool> Validar()
@@ -78,10 +73,7 @@
 		var trabajo = valor.FirstOrDefault(e => e.Puesto == puesto.Puesto);
 
 		if (trabajo != null)
-		{
-			//mensaje = "Error, ya existe un cliente con este nombre";
 			return true;
-		}
 
 		return false;
 	}

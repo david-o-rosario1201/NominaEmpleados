@@ -9,7 +9,7 @@
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Detalles de la Nomina</strong></h3>
+            <h3 class="text-center"><strong>Detalles de la Nomina</strong></h3>
 		</div>
 		@*Body*@
 		<div class="card-body">
@@ -32,6 +32,10 @@
                         <tr>
                             <th>Período de Pago</th>
                             <td>@nomina.PeriodoPago</td>
+                        </tr>
+                        <tr>
+                            <th>C&eacute;dula</th>
+                            <td>@nomina.Empleado.Cedula</td>
                         </tr>
                         <tr>
                             <th>Horas de Trabajo</th>
@@ -103,7 +107,7 @@
 		@*Footer*@
 		<div class="card-footer d-flex justify-content-center">
 			<div class="px-2">
-				<button type="button" class="btn btn-outline-danger" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
 			</div>
 		</div>
 	</div>

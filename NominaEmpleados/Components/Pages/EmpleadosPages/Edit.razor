@@ -132,36 +132,26 @@
 			var crear = await empleadosService.Crear(empleado);
 			if (crear)
 			{
-				//mensaje = "El cliente se ha creado con exito";
 				await Task.Delay(1000);
 				Volver();
-				//LimpiarPantalla();
 			}
-			// else
-			// 	mensaje = "No se pudo crear el cliente correctamente";
 		}
 
 		StateHasChanged();
 		await Task.Delay(2000);
-		//await LimpiarPantalla();
 	}
 
 	public async Task<bool> Validar()
 	{
 		var valor = await empleadosService.Listar(e => e.EmpleadoId > 0);
 		var cedula = valor.FirstOrDefault(e => e.Cedula == empleado.Cedula).Cedula;
-		var telefono = valor.FirstOrDefault(e => e.Telefono == empleado.Telefono).Telefono;
+		var telefono = valor.FirstOrDefault(e => e.Telefono == empleado.Telefono);
 
 		if (cedula != null && cedulaUltima != empleado.Cedula)
-		{
-			//mensaje = "Error, ya existe un cliente con este nombre";
 			return true;
-		}
+
 		if (telefono != null && telefonoUltima != empleado.Telefono)
-		{
-			//mensaje = "Error, ya existe un cliente con este RNC";
 			return true;
-		}
 
 		return false;
 	}

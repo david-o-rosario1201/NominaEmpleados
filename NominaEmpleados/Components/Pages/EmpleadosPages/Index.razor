@@ -35,6 +35,7 @@
 								<option selected disabled>Elije una opci&oacute;n</option>
 								<option value="id">Id</option>
 								<option value="nombre">Nombre</option>
+								<option value="cedula">C&eacute;dula</option>
 								<option value="direccion">Direcci&oacute;n</option>
 								<option value="profesion">Profesion</option>
 								<option value="departamento">Departamento</option>
@@ -55,9 +56,6 @@
 						</div>
 					</div>
 				</div>
-
-				//(nombre, apellidos, cédula, dirección, teléfono, profesión,
-				//registrar el departamento y el puesto que va a desempeñar).
 
 				<table class="table table-bordered miTabla">
 					<thead>
@@ -117,8 +115,6 @@
 	public string valorFiltro { get; set; }
 	public string mensaje { get; set; }
 	public bool loading { get; set; } = true;
-	public DateTime desde { get; set; } = DateTime.Today;
-	public DateTime hasta { get; set; } = DateTime.Today;
 
 	protected override async Task OnInitializedAsync()
 	{
@@ -135,7 +131,6 @@
 	{
 		List<Empleados> resultado = new List<Empleados>();
 
-		// Obtener todos los empleados para realizar el filtrado en el lado del cliente
 		var empleadosList = await empleadosService.Listar(e => true);
 
 		switch (filtro)
@@ -168,32 +163,27 @@
 				resultado = empleadosList.Where(e =>
 					e.Profesion.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
 				break;
-			// case "departamento":
-			// 	resultado = empleadosList.Where(e =>
-			// 		e.Departamento.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
-			// 	break;
-			// case "puesto":
-			// 	resultado = empleadosList.Where(e =>
-			// 		e.PuestoId.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
-			// 	break;
+			case "departamento":
+				resultado = empleadosList.Where(e =>
+					e.Departamento.Departamento.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
+			case "puesto":
+				resultado = empleadosList.Where(e =>
+					e.PuestosTrabajo.Puesto.Contains(valorFiltro, StringComparison.OrdinalIgnoreCase)).ToList();
+				break;
 		}
 
 		if (resultado == null || resultado.Count == 0)
-		{
-			// Maneja el caso cuando no se encuentran empleados
 			mensaje = "No se encontraron empleados con el filtro especificado.";
-		}
+
 		else
 		{
 			empleados = resultado;
-			mensaje = string.Empty; // Limpia el mensaje si se encuentran empleados
+			mensaje = string.Empty;
 		}
 
 		StateHasChanged();
 	}
-
-
-
 
 	public async Task Restablecer()
 	{

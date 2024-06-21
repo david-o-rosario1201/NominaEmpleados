@@ -9,7 +9,7 @@
 	<div class="card shadow-lg">
 		@*Header*@
 		<div class="card-header">
-			<h3><strong>Eliminar Nomina</strong></h3>
+			<h3 class="text-center"><strong>Eliminar Nomina</strong></h3>
 		</div>
 		@*Body*@
 		<div class="card-body">
@@ -33,6 +33,10 @@
 						<tr>
 							<th>Período de Pago</th>
 							<td>@nomina.PeriodoPago</td>
+						</tr>
+						<tr>
+							<th>C&eacute;dula</th>
+							<td>@nomina.Empleado.Cedula</td>
 						</tr>
 						<tr>
 							<th>Horas de Trabajo</th>
@@ -104,9 +108,9 @@
 		@*Footer*@
 		<div class="card-footer d-flex justify-content-center">
 			<div class="px-2">
-				<button type="button" class="btn btn-outline-primary" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
+				<button type="button" class="btn btn-outline-dark" @onclick="Volver"><i class="bi bi-box-arrow-left" /> Volver</button>
 			</div>
-			<button type="submit" class="btn btn-outline-dark"><i class="bi bi-floppy-fill" /> Elimnar</button>
+			<button type="submit" class="btn btn-outline-danger"><i class="bi bi-trash3-fill" /> Elimnar</button>
 		</div>
 	</div>
 </div>
@@ -135,70 +139,17 @@
 		}
 	}
 
-	// private async Task CalcularEmpleado(ChangeEventArgs e)
-	// {
-	// 	// Convertir e.Value a int para obtener el EmpleadoId seleccionado
-	// 	int empleadoId = int.Parse(e.Value.ToString());
-
-	// 	// Encontrar el empleado en la lista de empleados
-	// 	var selectedEmpleado = empleados.FirstOrDefault(emp => emp.EmpleadoId == empleadoId);
-
-	// 	// Asegurarse de que el empleado no es null
-	// 	if (selectedEmpleado != null)
-	// 	{
-	// 		var sueldo = selectedEmpleado.PuestosTrabajo.Sueldo;
-
-	// 		nomina.HorasExtras = (((sueldo / 23.83m) / 8) * 1.3m) * cantidadHoras;
-
-	// 		// Asignar el salario del empleado a nomina.SalarioBruto
-	// 		nomina.SalarioBruto = sueldo + nomina.HorasExtras;
-
-	// 		// Calcular y redondear los valores para AFP, Seguro Médico y Salario Neto
-	// 		nomina.AFP = Math.Round(nomina.SalarioBruto * 0.0287m, 2);
-	// 		nomina.SeguroMedico = Math.Round(nomina.SalarioBruto * 0.0304m, 2);
-	// 		nomina.SalarioNeto = Math.Round(nomina.SalarioBruto - (nomina.AFP + nomina.SeguroMedico), 2);
-
-	// 		// Trigger state change to update UI
-	// 		StateHasChanged();
-	// 	}
-	// 	else
-	// 	{
-	// 		// Manejar el caso donde el empleado no se encuentra
-	// 		Console.WriteLine("Empleado no encontrado");
-	// 	}
-	// }
-
-	//////////////////////////////////// <summary>
-	/// /////////////////////////////////
-	/// </summary>
-
-	///
-	
-
-
-
 	public async void Eliminar()
 	{
 		var crear = await nominaService.Eliminar(nominaId);
 		if (crear)
 		{
-			//mensaje = "El cliente se ha creado con exito";
 			await Task.Delay(1000);
 			Volver();
-			//LimpiarPantalla();
 		}
-		// if (await Validar())
-		// 	return;
-		// else
-		// {
-			
-		// 	// else
-		// 	// 	mensaje = "No se pudo crear el cliente correctamente";
-		// }
 
 		StateHasChanged();
 		await Task.Delay(2000);
-		//await LimpiarPantalla();
 	}
 
 	void Volver()
